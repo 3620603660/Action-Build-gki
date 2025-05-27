@@ -82,11 +82,10 @@ on:
         options:
           - gki
           - perf
-      SUFFIX:
-        type: string
-        description: "自定义内核后缀 (留空则使用随机字符串)"
+      KERNEL_NAME:
+        description: "修改内核名称"
         required: true
-        default: ""
+        default: '-android15-8-g013ec21bba94-abogki383916444'
       SUSFS_CI:
         type: boolean
         description: "下载SUSFS模块是否使用CI构建？"
@@ -161,57 +160,6 @@ jobs:
           fi
           rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-
-      # 删除 -dirty 脏块
-      - name: Force remove -dirty suffix
-        run: |
-          cd kernel_workspace/kernel_platform
-          sed -i 's/ -dirty//g' common/scripts/setlocalversion
-          sed -i 's/ -dirty//g' msm-kernel/scripts/setlocalversion
-          sed -i 's/ -dirty//g' external/dtc/scripts/setlocalversion
-          sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' common/scripts/setlocalversion
-          git add -A
-          git commit -m "Force remove -dirty suffix from kernel version"
-
-      # 自定义内核后缀
-      - name: Modify setlocalversion suffix if SUFFIX is set
-        if: ${{ github.event.inputs.SUFFIX != '' }}
-        run: |
-          cd kernel_workspace
-          for path in \
-            kernel_platform/common/scripts/setlocalversion \
-            kernel_platform/msm-kernel/scripts/setlocalversion \
-            kernel_platform/external/dtc/scripts/setlocalversion; do
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-f]{7,}//'\'')' "$path"
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${{ github.event.inputs.SUFFIX }}\"|" "$path"
-          done
-          git add -A
-          git commit -m "Clean git describe suffix and append custom suffix: ${{ github.event.inputs.SUFFIX }}"
-
-      # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
-      - name: Generate random kernel suffix if SUFFIX is empty
-        if: ${{ github.event.inputs.SUFFIX == '' }}
-        run: |
-          cd kernel_workspace
-
-          RANDOM_DIGIT=$(od -An -N1 -tu1 < /dev/urandom | tr -d '[:space:]' | awk '{print $1 % 11}')
-          RANDOM_HASH=$(od -An -N7 -tx1 /dev/urandom | tr -d ' \n')
-          RANDOM_SUFFIX="${RANDOM_DIGIT}-o-g${RANDOM_HASH}"
-
-          for path in \
-            kernel_platform/common/scripts/setlocalversion \
-            kernel_platform/msm-kernel/scripts/setlocalversion \
-            kernel_platform/external/dtc/scripts/setlocalversion; do
-
-              # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-fA-F]{7,}//g'\'')' "$path"
-
-              # 替换 echo "$res" 为带随机后缀
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-$RANDOM_SUFFIX\"|" "$path"
-          done
-
-          git add -A
-          git commit -m "Fix: inject random suffix"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
