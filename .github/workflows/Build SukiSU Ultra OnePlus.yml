@@ -85,8 +85,8 @@ on:
       SUFFIX:
         type: string
         description: "自定义内核后缀 (留空则使用随机字符串)"
-        required: false
-        default: ""
+        required: true
+        default: "-8-g013ec21bba94-abogki383916444-4k"
       SUSFS_CI:
         type: boolean
         description: "下载SUSFS模块是否使用CI构建？"
