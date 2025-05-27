@@ -1,11 +1,10 @@
 diff --git a/drivers/of/property.c b/drivers/of/property.c
 --- a/drivers/of/property.c
 +++ b/drivers/of/property.c
-@@ -459,6 +459,10 @@
+@@ -451,6 +451,9 @@
  	if (strnlen(prop->value, prop->length) >= prop->length)
  		return -EILSEQ;
  	*out_string = prop->value;
-+
 +	if (strcmp(propname, "type") == 0 && strcmp(prop->value, "HMBIRD_OGKI") == 0)
 +		*out_string = "HMBIRD_GKI";
 +
