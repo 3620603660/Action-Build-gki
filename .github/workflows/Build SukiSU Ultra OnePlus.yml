@@ -10,36 +10,42 @@ on:
         options:
           - boot1
           - boot2
-
       CPU:
         description: "分支"
         required: true
         default: 'sm8750'
-
       FEIL:
         description: "配置文件"
         required: true
-        default: 'JiuGeFaCai_oneplus_ace5_pro_v'
-
+        default: 'oneplus_ace5_pro'
       CPUD:
         description: "处理器代号"
         required: true
         default: 'sun'
-
       ANDROID_VERSION:
         description: "内核安卓版本"
         required: true
         default: 'android15'
-
       KERNEL_VERSION:
         description: "内核版本"
         required: true
         default: '6.6'
-
       KERNEL_NAME:
-        description: "修改内核名称(不支持中文和表情)"
+        description: "修改内核名称(支持表情+中文)"
         required: true
         default: '-android15-8-g013ec21bba94-abogki383916444'
+      
+      lz4kd:
+        type: boolean
+        description: "是否启用lz4kd"
+        required: true
+        default: true
+
+      hide:
+        type: boolean
+        description: "是否启用隐藏应用补丁"
+        required: true
+        default: true
         
       KPM:
         type: boolean
