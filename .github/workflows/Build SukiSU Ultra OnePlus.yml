@@ -6,7 +6,7 @@ on:
         type: choice
         description: "选择修补boot方法"
         required: true
-        default: boot2
+        default: boot1
         options:
           - boot1
           - boot2
@@ -17,7 +17,7 @@ on:
       FEIL:
         description: "配置文件"
         required: true
-        default: 'JiuGeFaCai_oneplus_ace5_pro_v'
+        default: 'oneplus_ace5_pro_v'
       CPUD:
         description: "处理器代号"
         required: true
@@ -76,7 +76,7 @@ jobs:
       - name: Configure Git
         run: |
          git config --global user.name "build"
-         git config --global user.email "2772000679@qq.com"
+         git config --global user.email "3620603668@qq.com"
 
       - name: Install dependencies
         run: |
@@ -92,7 +92,7 @@ jobs:
       - name: Initialize repo and sync
         run: |
          mkdir kernel_workspace && cd kernel_workspace
-         repo init -u https://github.com/3620603660/kernel_manifest.git -b refs/tree/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
+         repo init -u https://github.com/3620603660/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
          repo --trace sync -c -j$(nproc --all) --no-tags
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
