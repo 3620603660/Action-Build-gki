@@ -200,7 +200,7 @@ jobs:
             if [ "${{ github.event.inputs.boot }}" = "boot1" ]; then
             cd kernel_workspace/kernel_platform/common
             sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
-            wget https://github.com/3620603660/Action-Build-gki/raw/main/patchs/property.patch
+            wget https://github.com/3620603660/patch/raw/main/hmbird_patch.patch
             echo "正在打OGKI转换GKI补丁"
             patch -p1 -F 3 < hmbird_patch.patch
             echo "OGKI转换GKI patch完成"
@@ -211,11 +211,12 @@ jobs:
         run: |
             if [ "${{ github.event.inputs.boot }}" = "boot2" ]; then
             cd kernel_workspace/kernel_platform/common
-            wget https://github.com/3620603660/Action-Build-gki/raw/main/patchs/property.pa
+            wget https://github.com/3620603660/patch/raw/main/property.patch
             echo "正在打OGKI转换GKI补丁"
             patch -p1 -F 3 < property.patch
             echo "OGKI转换GKI patch完成"
             fi
+
 
       - name: Set Kernel build timestamp
         run: |
