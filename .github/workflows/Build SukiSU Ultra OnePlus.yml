@@ -6,7 +6,7 @@ on:
         type: choice
         description: "选择修补boot方法"
         required: true
-        default: boot1
+        default: boot2
         options:
           - boot1
           - boot2
@@ -33,7 +33,7 @@ on:
       KERNEL_NAME:
         description: "修改内核名称(支持表情+中文)"
         required: true
-        default: '666'
+        default: '✌️✌️✌️'
       
       lz4kd:
         type: boolean
@@ -52,6 +52,7 @@ on:
         description: "是否启用KPM"
         required: true
         default: false
+      
   
 
 jobs:
@@ -215,8 +216,12 @@ jobs:
             patch -p1 -F 3 < property.patch
             echo "OGKI转换GKI patch完成"
             fi
-          
 
+      - name: Set Kernel build timestamp
+        run: |
+          export SOURCE_DATE_EPOCH=$(date -d "2024-12-17 23:36:49 UTC" +%s)
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
+     
       - name: Add sched_ext
         run: |
          cd kernel_workspace/kernel_platform/
