@@ -6,30 +6,36 @@ on:
         type: choice
         description: "选择修补boot方法"
         required: true
-        default: ''
+        default: boot1
         options:
           - boot1
           - boot2
+
       CPU:
         description: "分支"
         required: true
         default: 'sm8750'
+
       FEIL:
         description: "配置文件"
         required: true
         default: 'JiuGeFaCai_oneplus_ace5_pro_v'
+
       CPUD:
         description: "处理器代号"
         required: true
         default: 'sun'
+
       ANDROID_VERSION:
         description: "内核安卓版本"
         required: true
         default: 'android15'
+
       KERNEL_VERSION:
         description: "内核版本"
         required: true
         default: '6.6'
+
       KERNEL_NAME:
         description: "修改内核名称(不支持中文和表情)"
         required: true
