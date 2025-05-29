@@ -6,7 +6,7 @@ on:
         type: choice
         description: "选择修补boot方法"
         required: true
-        default: boot1
+        default: ''
         options:
           - boot1
           - boot2
