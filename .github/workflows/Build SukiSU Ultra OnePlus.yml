@@ -17,7 +17,7 @@ on:
       FEIL:
         description: "配置文件"
         required: true
-        default: 'oneplus_ace5_pro'
+        default: 'JiuGeFaCai_oneplus_ace5_pro_v'
       CPUD:
         description: "处理器代号"
         required: true
@@ -31,21 +31,9 @@ on:
         required: true
         default: '6.6'
       KERNEL_NAME:
-        description: "修改内核名称(支持表情+中文)"
+        description: "修改内核名称(不支持中文和表情)"
         required: true
         default: '-android15-8-g013ec21bba94-abogki383916444'
-      
-      lz4kd:
-        type: boolean
-        description: "是否启用lz4kd"
-        required: true
-        default: true
-
-      hide:
-        type: boolean
-        description: "是否启用隐藏应用补丁"
-        required: true
-        default: true
         
       KPM:
         type: boolean
@@ -76,16 +64,19 @@ jobs:
       - name: Configure Git
         run: |
          git config --global user.name "build"
-         git config --global user.email "3620603668@qq.com"
+         git config --global user.email "2772000679@qq.com"
+
       - name: Install dependencies
         run: |
          sudo apt update && sudo apt upgrade -y
          sudo apt install -y python3 git curl
+
       - name: Install repo tool
         run: |
          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
          chmod a+x ~/repo
          sudo mv ~/repo /usr/local/bin/repo
+
       - name: Initialize repo and sync
         run: |
          mkdir kernel_workspace && cd kernel_workspace
@@ -109,6 +100,7 @@ jobs:
            cd kernel_workspace
            git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
            git clone https://github.com/ExmikoN/SukiSU_patch.git
+
            cd kernel_platform        
            cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
            cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
@@ -119,8 +111,10 @@ jobs:
            cp -r ../SukiSU_patch/other/lz4k/crypto/* ./common/crypto
            # Apply patches
            cd ./common
+
            sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
            sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
+
            patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
            cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
            patch -p1 -F 3 < syscall_hooks.patch
@@ -165,8 +159,7 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo
-"CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -233,7 +226,7 @@ jobs:
          
       - name: Make AnyKernel3
         run: |
-         git clone https://github.com/3620603660/AnyKernel3.git --depth=1      
+         git clone https://github.com/36020603660/AnyKernel3.git --depth=1      
          rm -rf ./AnyKernel3/.git
          rm -rf ./AnyKernel3/push.sh
          cp kernel_workspace/kernel_platform/dist/Image ./AnyKernel3/
