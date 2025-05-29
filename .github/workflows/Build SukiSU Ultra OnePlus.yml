@@ -17,7 +17,7 @@ on:
       FEIL:
         description: "配置文件"
         required: true
-        default: 'oneplus_ace5_pro'
+        default: 'JiuGeFaCai_oneplus_ace5_pro_v'
       CPUD:
         description: "处理器代号"
         required: true
@@ -31,21 +31,9 @@ on:
         required: true
         default: '6.6'
       KERNEL_NAME:
-        description: "修改内核名称(支持表情+中文)"
+        description: "修改内核名称(不支持中文和表情)"
         required: true
-        default: 'Σ(ﾟдﾟlll)'
-      
-      lz4kd:
-        type: boolean
-        description: "是否启用lz4kd"
-        required: true
-        default: true
-
-      hide:
-        type: boolean
-        description: "是否启用隐藏应用补丁"
-        required: true
-        default: true
+        default: '-android15-8-g013ec21bba94-abogki383916444'
         
       KPM:
         type: boolean
@@ -77,18 +65,15 @@ jobs:
         run: |
          git config --global user.name "build"
          git config --global user.email "3620603668@qq.com"
-
       - name: Install dependencies
         run: |
          sudo apt update && sudo apt upgrade -y
          sudo apt install -y python3 git curl
-
       - name: Install repo tool
         run: |
          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
          chmod a+x ~/repo
          sudo mv ~/repo /usr/local/bin/repo
-
       - name: Initialize repo and sync
         run: |
          mkdir kernel_workspace && cd kernel_workspace
@@ -112,7 +97,6 @@ jobs:
            cd kernel_workspace
            git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
            git clone https://github.com/ExmikoN/SukiSU_patch.git
-
            cd kernel_platform        
            cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
            cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
@@ -123,10 +107,8 @@ jobs:
            cp -r ../SukiSU_patch/other/lz4k/crypto/* ./common/crypto
            # Apply patches
            cd ./common
-
            sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
            sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
-
            patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
            cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
            patch -p1 -F 3 < syscall_hooks.patch
@@ -134,21 +116,17 @@ jobs:
            
       - name: Apply Hide Stuff Patches
         run: |
-          if [ "${{ github.event.inputs.hide }}" = "true" ]; then
           cd kernel_workspace/kernel_platform/common
           cp ../../SukiSU_patch/69_hide_stuff.patch ./
           echo "正在打隐藏应用补丁"
           patch -p1 -F 3 < 69_hide_stuff.patch
           echo "隐藏应用_patch完成"
-          fi
-
+          
       - name: Apply lz4kd Patches
         run: |
-          if [ "${{ github.event.inputs.lz4kd }}" = "true" ]; then
           cd kernel_workspace/kernel_platform/common
           cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
           patch -p1 -F 3 < lz4kd.patch || true
-          fi
            
       - name: Add SUSFS Configuration Settings
         run: |
@@ -175,7 +153,8 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo
+"CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -191,9 +170,7 @@ jobs:
       - name: Add make name
         run: |
          cd kernel_workspace/kernel_platform
-         sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
-         sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_NAME }}/g' ./common/arch/arm64/configs/gki_defconfig
-      
+         sed -i 's/res="\$res\$(cat "\$file")"/res="${{ github.event.inputs.KERNEL_NAME }}"/g' ./common/scripts/setlocalversion
       
       - name: boot1
         run: |
@@ -216,13 +193,11 @@ jobs:
             patch -p1 -F 3 < property.patch
             echo "OGKI转换GKI patch完成"
             fi
-
-
-      - name: Set Kernel build timestamp
-        run: |
-          export SOURCE_DATE_EPOCH=$(date -d "2024-12-17 23:36:49 UTC" +%s)
-          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
-     
+      - name: Set build timestamp
+        run: |         
+         export SOURCE_DATE_EPOCH=$(date -d "2024-12-17 23:36:49 UTC" +%s)
+         echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
+                   
       - name: Add sched_ext
         run: |
          cd kernel_workspace/kernel_platform/
@@ -231,8 +206,6 @@ jobs:
          rm -rf ./sched_ext/.git
          cd common/kernel/sched
          sed -i.bak '/# include "ext.c"/a\# include "hmbird_sched_proc_main.c"\n#endif\n\n#ifdef CONFIG_SLIM_SCHED\n# include "slim_sysctl.c"' build_policy.c
-
-
       - name: Build kernel
         run: |
          cd kernel_workspace/kernel_platform
@@ -252,7 +225,6 @@ jobs:
          rm -rf ./AnyKernel3/.git
          rm -rf ./AnyKernel3/push.sh
          cp kernel_workspace/kernel_platform/dist/Image ./AnyKernel3/
-
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
