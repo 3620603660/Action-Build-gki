@@ -17,7 +17,7 @@ on:
       FEIL:
         description: "配置文件"
         required: true
-        default: 'JiuGeFaCai_oneplus_ace5_pro_v'
+        default: 'oneplus_ace5_pro'
       CPUD:
         description: "处理器代号"
         required: true
@@ -64,7 +64,7 @@ jobs:
       - name: Configure Git
         run: |
          git config --global user.name "build"
-         git config --global user.email "2772000679@qq.com"
+         git config --global user.email "3620603668@qq.com"
 
       - name: Install dependencies
         run: |
@@ -198,6 +198,7 @@ jobs:
             patch -p1 -F 3 < property.patch
             echo "OGKI转换GKI patch完成"
             fi
+
       - name: Set build timestamp
         run: |         
          export SOURCE_DATE_EPOCH=$(date -d "2024-12-17 23:36:49 UTC" +%s)
